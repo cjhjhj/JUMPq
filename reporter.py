@@ -128,6 +128,12 @@ def getReporterMz(name):
         return 133.151210
     elif name == "sig134N":
         return 134.148245
+    elif name == "sig134C":
+        return 134.1545646
+    elif name == "sig135N":
+        return 135.1515995
+    else:
+        sys.exit("  {} is an incorrect reporter name. Please check the parameter file again".format(name))
 
 
 def getReporterSummary(df, reporters):

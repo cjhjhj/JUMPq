@@ -31,6 +31,7 @@ def correctImpurity(df, params):
         reporters = params["tmt_reporters_used"].split(";")
         dfImpurity = pd.read_table(params["impurity_matrix"], sep="\t", skiprows=1, header=None, index_col=0)
         dfImpurity = pd.DataFrame(np.linalg.pinv(dfImpurity.values), dfImpurity.columns, dfImpurity.index)
+        dfImpurity.columns = reporters
         dfCorrected = df[reporters].dot(dfImpurity.T)
         dfCorrected.columns = reporters
         df[reporters] = pd.concat([df[reporters]/2, dfCorrected]).groupby(level=0).max()

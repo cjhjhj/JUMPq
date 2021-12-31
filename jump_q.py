@@ -7,7 +7,7 @@ from reporter import extractReporters
 from filters import filterPSMs
 from normalization import getLoadingBias, normalization
 from summarization import summarization
-
+from publication import generateTables
 
 if __name__ == "__main__":
 
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     # Initialization #
     ##################
     # paramFile = sys.argv[1]
-    paramFile = "/Users/jcho/Research/JUMPq/Example/jump_q.params"
+    paramFile = "/Users/jcho/Research/JUMPq/Example/jump_q_HH_tmt10.params"
     params = getParams(paramFile)
     saveDir = os.path.join(os.getcwd(), "quan_" + params["save_dir"])
     os.makedirs(saveDir, exist_ok=True)
@@ -84,23 +84,31 @@ if __name__ == "__main__":
     dfNorm = normalization(dfQuan, params)
     dfNorm.to_csv(os.path.join(saveDir, "normalized_quan_psm_nonzero.txt"), sep="\t")
 
-    ###############################
-    # Peptide-level summarization #
-    ###############################
+    #################
+    # Summarization #
+    #################
+    # 1. Peptide-level summarization
     print("\n  Peptide-level summarization is being performed")
     pep2psm = dfId.groupby("Peptide")["key"].apply(lambda x: list(np.unique(x))).to_dict()
     # dfPep = parSummarization(pep2psm, dfNorm, params)
     dfPep = summarization(pep2psm, dfNorm, params, 'peptide')
-    dfPep.to_csv(os.path.join(saveDir, "id_all_pep_quan_python.txt"), sep="\t")
+    # dfPep.to_csv(os.path.join(saveDir, "id_all_pep_quan_python.txt"), sep="\t")
 
-    ###############################
-    # Protein-level summarization #
-    ###############################
+    # 2. Protein-level summarization
     print("\n  Protein-level summarization is being performed")
     prot2psm = dfId.groupby("Protein")["key"].apply(lambda x: list(np.unique(x))).to_dict()
     # dfProt = parSummarization(prot2psm, dfNorm, params)
     dfProt = summarization(prot2psm, dfNorm, params, 'protein')
-    dfProt.to_csv(os.path.join(saveDir, "id_all_prot_quan_python.txt"), sep="\t")
+    # dfProt.to_csv(os.path.join(saveDir, "id_all_prot_quan_python.txt"), sep="\t")
+
+    ######################
+    # Publication tables #
+    ######################
+    dfUniPep, dfAllPep, dfUniProt, dfAllProt = generateTables(dfPep, dfProt, params)
+    dfUniPep.to_csv(os.path.join(saveDir, "id_uni_pep_quan.txt"), sep="\t", index=False)
+    dfAllPep.to_csv(os.path.join(saveDir, "id_all_pep_quan.txt"), sep="\t", index=False)
+    dfUniProt.to_csv(os.path.join(saveDir, "id_uni_prot_quan.txt"), sep="\t", index=False)
+    dfAllProt.to_csv(os.path.join(saveDir, "id_all_prot_quan.txt"), sep="\t", index=False)
 
     endTime = datetime.now()
     endTimeString = endTime.strftime("%Y/%m/%d %H:%M:%S")

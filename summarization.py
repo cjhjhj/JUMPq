@@ -50,13 +50,15 @@ def summarization(inputDict, df, params, level):
     # level: protein or peptide (using a string)
 
     resDict = {}
-    nRemoved = 0
+    nEntries = len(inputDict)
+    nRemoved1, nRemoved2 = 0, 0
     reporters = params["tmt_reporters_used"].split(";")
-    progress = progressBar(len(inputDict))
+    progress = progressBar(nEntries)
     for entry, psms in inputDict.items():
         progress.increment()
         psms = df.index.join(psms, how="inner")
         if len(psms) == 0:
+            nRemoved1 += 1
             continue
         else:
             subDf = df.loc[psms][reporters]
@@ -86,13 +88,16 @@ def summarization(inputDict, df, params, level):
                 repAbundance = np.mean(sorted(psmMeans, reverse=True)[0:3])
                 subDf = subDf.sub(psmMeans, axis=0)
                 subDf = outlierRemoval(subDf, 0.05)  # Can I make it faster?
-                subDf = 2 ** (subDf.mean(axis=0) + repAbundance)
+                if len(subDf) > 0:
+                    subDf = 2 ** (subDf.mean(axis=0).to_frame().T + repAbundance)
 
             if len(subDf) > 0:
-                resDict[entry] = subDf.to_dict()
+                resDict[entry] = subDf.iloc[0].to_dict()
             else:
-                nRemoved += 1
+                nRemoved2 += 1
 
-    print("    {} (out of {}) {}s are not quantified due to the further filtering of PSMs".format(nRemoved, len(inputDict), level))
+    print("    {} (out of {}) {}s are quantified".format(nEntries - nRemoved1 - nRemoved2, nEntries, level))
+    print("    {} (out of {}) {}s are NOT quantified due to the intensity-based filtering of PSMs".format(nRemoved1, nEntries, level))
+    print("    {} (out of {}) {}s are NOT quantified due to the further filtering of PSMs".format(nRemoved2, nEntries, level))
     res = pd.DataFrame.from_dict(resDict, orient="index")
     return res

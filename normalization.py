@@ -50,6 +50,7 @@ def normalization(df, params):
     doNormalization = params["loading_bias_correction"]
     normalizationMethod = params["loading_bias_correction_method"]
     reporters = params["tmt_reporters_used"].split(";")
+    res = df.copy()
 
     if doNormalization == "1":
         # First, get a subset for calculating normalization factors (same as loading-bias calculation)
@@ -65,7 +66,6 @@ def normalization(df, params):
         normFactors = sm - target
 
         # Normalize the input dataframe, df (in log2-scale and then scale-back)
-        res = df.copy()
         psmMeans = res[reporters].mean(axis=1)
         res[reporters] = np.log2(res[reporters].divide(psmMeans, axis=0).replace(0, np.nan))
         res[reporters] = res[reporters] - normFactors
