@@ -97,7 +97,8 @@ def summarization(inputDict, df, params, level):
                 nRemoved2 += 1
 
     print("    {} (out of {}) {}s are quantified".format(nEntries - nRemoved1 - nRemoved2, nEntries, level))
-    print("    {} (out of {}) {}s are NOT quantified due to the intensity-based filtering of PSMs".format(nRemoved1, nEntries, level))
-    print("    {} (out of {}) {}s are NOT quantified due to the further filtering of PSMs".format(nRemoved2, nEntries, level))
+    print("    {} (out of {}) {}s are NOT quantified due to the filtering of PSMs".format(nRemoved1 + nRemoved2, nEntries, level))
+    # print("    {} (out of {}) {}s are NOT quantified due to the intensity-based filtering of PSMs".format(nRemoved1, nEntries, level))
+    # print("    {} (out of {}) {}s are NOT quantified due to the further filtering of PSMs".format(nRemoved2, nEntries, level))
     res = pd.DataFrame.from_dict(resDict, orient="index")
     return res

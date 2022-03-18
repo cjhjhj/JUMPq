@@ -1,4 +1,4 @@
-import os
+import os, sys
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -19,8 +19,8 @@ if __name__ == "__main__":
     ##################
     # Initialization #
     ##################
-    # paramFile = sys.argv[1]
-    paramFile = "/Users/jcho/Research/JUMPq/Example/jump_q_HH_tmt10.params"
+    paramFile = sys.argv[1]
+    # paramFile = "/Users/jcho/Research/JUMPq/Example/jump_q_HH_tmt10.params"
     params = getParams(paramFile)
     saveDir = os.path.join(os.getcwd(), "quan_" + params["save_dir"])
     os.makedirs(saveDir, exist_ok=True)
